@@ -4,6 +4,8 @@ import tomllib
 from pathlib import Path
 from tbot.core.plugins import PluginRegistry
 from tbot.data.synthetic import SyntheticDataProvider
+from tbot.data.delta_india import DeltaIndiaDataProvider
+from tbot.data.delta_client import DeltaAPIError
 from tbot.strategies.moving_average import MovingAverageStrategy
 from tbot.brokers.simulated import SimulatedBroker
 from tbot.risk.position_limit import PositionLimit
@@ -14,6 +16,7 @@ from tbot.runners.backtest import BacktestRunner
 def default_registry():
     registry = PluginRegistry()
     registry.register("data", "synthetic", SyntheticDataProvider)
+    registry.register("data", "delta_india", DeltaIndiaDataProvider)
     registry.register("strategy", "moving_average", MovingAverageStrategy)
     registry.register("broker", "simulated", SimulatedBroker)
     registry.register("risk", "position_limit", PositionLimit)
@@ -26,6 +29,10 @@ def run_config(path: Path):
         config = tomllib.load(file)
     if config["run"]["mode"] != "backtest":
         raise ValueError("Only backtest mode is implemented; live orders are unavailable")
+    if "cache_directory" in config["data"]:
+        cache_path = Path(config["data"]["cache_directory"])
+        if not cache_path.is_absolute():
+            config["data"]["cache_directory"] = str(path.resolve().parent / cache_path)
     registry = default_registry()
     runner = BacktestRunner(*(registry.create(category, config[category])
                               for category in ("data", "strategy", "broker", "risk")))
@@ -38,13 +45,13 @@ def run_config(path: Path):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Run a configured synthetic backtest")
+    parser = argparse.ArgumentParser(description="Run a configured backtest")
     parser.add_argument("--config", type=Path, default=Path("config/demo.toml"))
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     try:
         result, report = run_config(args.config)
-    except (ValueError, KeyError, TypeError, OSError, tomllib.TOMLDecodeError) as error:
+    except (DeltaAPIError, ValueError, KeyError, TypeError, OSError, tomllib.TOMLDecodeError) as error:
         parser.exit(1, f"Configuration/run error: {error}\n")
     logging.info("Completed: %s fills; final equity %s; report %s",
                  len(result.fills), result.final_portfolio.equity, report)

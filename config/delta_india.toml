@@ -1,0 +1,32 @@
+# Educational run with real prices and the Sprint 1 cash simulator.
+# NOT a futures backtest: contract/margin/funding support arrives in Sprint 3.
+[run]
+mode = "backtest"
+output_directory = "../outputs/delta_india"
+
+[data]
+name = "delta_india"
+symbol = "BTCUSD"
+start = "2025-01-01T00:00:00Z"
+end = "2025-01-02T00:00:00Z"
+timeframe_minutes = 60
+cache_directory = "../data/cache"
+offline = false
+refresh = false
+
+[strategy]
+name = "moving_average"
+window = 3
+quantity = "0.001"
+
+[broker]
+name = "simulated"
+initial_cash = "10000"
+fee_rate = "0.001"
+
+[risk]
+name = "position_limit"
+max_quantity = "0.001"
+
+[report]
+name = "json"

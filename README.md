@@ -2,7 +2,8 @@
 
 A local, readable Python trading platform. Target integrations: Delta Exchange
 India first, Zerodha second. Sprint 1 provides plugin contracts and a runnable
-synthetic backtest. It does not connect to an exchange or place live orders.
+synthetic backtest. Sprint 2 adds public Delta India market data, Parquet caching,
+and completed-candle REST polling. It does not place live orders.
 
 ## Windows setup (PowerShell)
 
@@ -18,7 +19,7 @@ py -3 -m venv .venv
 Using the virtual environment executable directly avoids PowerShell activation
 policy changes. The demo writes `outputs/demo/report.json`. Run again to reproduce
 the same result; that report is overwritten. Use another output directory to keep
-separate runs. No API keys or runtime dependencies are needed for the demo.
+separate runs. No API keys are needed. Installation includes PyArrow for Parquet storage.
 
 Linux/macOS equivalent:
 
@@ -57,6 +58,8 @@ by `src/tbot/runners/backtest.py`. Shared types live in `core/models.py`; plugin
 contracts live in `core/interfaces.py`. See [the extension guide](docs/plugins.md)
 and [the sprint roadmap](docs/roadmap.md).
 
-Trainer is currently an interface only. Exchange adapters, optimization, ML,
-charts, API, dashboard, persistent live execution, and restart recovery are later
-sprint deliverables. Never store API keys in committed configuration files.
+See [Delta India data instructions](docs/delta_india_data.md) for historical
+downloads, offline replay, timeframe configuration, and live candle polling.
+
+Trainer is currently an interface only. Optimization, ML, charts, API, dashboard,
+live broker execution, and restart recovery are later sprint deliverables. Never store API keys in committed configuration files.
