@@ -1,0 +1,26 @@
+# Synthetic prices only. This configuration never connects to a broker.
+[run]
+mode = "backtest"
+output_directory = "../outputs/demo"
+
+[data]
+name = "synthetic"
+symbol = "BTCUSD"
+timeframe_minutes = 60
+
+[strategy]
+name = "moving_average"
+window = 3
+quantity = "1"
+
+[broker]
+name = "simulated"
+initial_cash = "10000"
+fee_rate = "0.001"
+
+[risk]
+name = "position_limit"
+max_quantity = "1"
+
+[report]
+name = "json"
